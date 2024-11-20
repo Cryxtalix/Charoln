@@ -63,10 +63,13 @@ void str_write(String *dest, const char *source)
                         dest->str_obj_ptr->size *= 1.5;
                 }
 
-                dest->str_obj_ptr->str_ptr = realloc(dest->str_obj_ptr->str_ptr, dest->str_obj_ptr->size * sizeof(char));
-                if (dest->str_obj_ptr->str_ptr == NULL) { // Check allocation
+                char *temp = realloc(dest->str_obj_ptr->str_ptr, dest->str_obj_ptr->size * sizeof(char));
+                if (temp == NULL) { // Check allocation
                         fprintf(stderr, "str_write: Memory reallocation of str_ptr failed\n");
+                        free(dest->str_obj_ptr->str_ptr);
                         exit(1);
+                } else {
+                        dest->str_obj_ptr->str_ptr = temp;
                 }
         }
 
@@ -84,10 +87,13 @@ void str_add(String *dest, const char *source)
                 while(dest->str_obj_ptr->size < dest->str_obj_ptr->len + input_len + 1) {
                         dest->str_obj_ptr->size *= 1.5;
                 }
-                dest->str_obj_ptr->str_ptr = realloc(dest->str_obj_ptr->str_ptr, dest->str_obj_ptr->size * sizeof(char));
-                if (dest->str_obj_ptr->str_ptr == NULL) {
+                char *temp = realloc(dest->str_obj_ptr->str_ptr, dest->str_obj_ptr->size * sizeof(char));
+                if (temp == NULL) {
                         fprintf(stderr, "str_add: Memory reallocation of str_ptr failed\n");
+                        free(dest->str_obj_ptr->str_ptr);
                         exit(1);
+                } else {
+                        dest->str_obj_ptr->str_ptr = temp;
                 }
         }
 

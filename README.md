@@ -20,7 +20,7 @@ A personal motivation is to make it easier to complete [Advent of Code](https://
 - [ ] Split
 - [ ] Find
 - [ ] Replace
-- [ ] isnum
-- [ ] isalpha
-- [ ] Uppercase
-- [ ] Lowercase
+- [ ] Is number
+- [ ] Is alpha
+- [ ] Make uppercase
+- [ ] Make lowercase
