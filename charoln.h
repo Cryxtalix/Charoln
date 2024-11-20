@@ -57,7 +57,7 @@ char *str_get(String *dest);
  * Returns the length of string
  *
  * @param String
- * @return Length uint64_t
+ * @return size_t
  */
 size_t str_len(String *dest);
 
@@ -65,27 +65,22 @@ size_t str_len(String *dest);
  * Write text to string
  *
  * @note Overwrites any existing data.
- * @param String, const C strings
+ * @param String
+ * @param const char *
  */
 void str_overwrite(String *dest, const char *source);
 
 /*
- * Append standard C string to String
+ * Append to String
  *
- * @param String, const c strings
+ * @param String
+ * @param String or const char *
  */
-void str_add_char(String *dest, const char *source);
-
-/*
- * Append standard String to String
- *
- * @param String, Sting
- */
-void str_add_string(String *dest, String *source);
-
 #define str_append(dest, source) _Generic((source), \
-                                            const char *: str_add_char, \
-                                                String *: str_add_string \
+                                            const char *: _append_char, \
+                                                String *: _append_string \
                                           )(dest, source)
+void _append_char(String *dest, const char *source);
+void _append_string(String *dest, String *source);
 
 #endif // CHARLN

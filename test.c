@@ -59,6 +59,7 @@ void test_str_init(void)
 
 void test_str_overwrite()
 {
+        /*** TESTING _str_resize FUNCTION ***/
         String *tstr = str_init();
         // Create 199 char long sting to test realloc mechanism
         char *value = string_to_fill(200);
@@ -83,7 +84,7 @@ void test_str_overwrite()
         assert(tstr->str_obj_ptr->len + 1 == current_size); // Length is as expected
         free(value2);
 
-        // Test overwriting with shorter string
+        /*** TESTING OVERWRITING FUNCTIONALITY ***/
         char *value3 = string_to_fill(100);
         str_overwrite(tstr, value3);
 
@@ -128,6 +129,7 @@ void test_str_len()
 
 void test_str_append()
 {
+        /*** TESTING DIFFERENT TYPE ARGUMENTS ***/
         // APPEND STRING OBJ
         String *tstr = str_init();
         String *tstr2 = str_init();

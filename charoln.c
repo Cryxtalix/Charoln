@@ -9,6 +9,27 @@
 #include <stdlib.h>
 #include <string.h>
 
+static void _str_resize(String *dest, size_t target_size) {
+        // If string is less than half of target_size
+        // we simply set string to target_size
+        // Otherwise we increase by a multiple of 1.5
+        if (dest->str_obj_ptr->size * 2 < target_size) {
+                dest->str_obj_ptr->size = target_size;
+        } else {
+                dest->str_obj_ptr->size *= 1.5;
+        }
+
+        char *temp = realloc(dest->str_obj_ptr->str_ptr, dest->str_obj_ptr->size * sizeof(char));
+        if (temp == NULL) {
+                // Failure
+                strcpy(dest->error_msg, "str_write: realloc failure");
+                dest->error_code = ERROR_ALLOCATION;
+                return;
+        } else {
+                dest->str_obj_ptr->str_ptr = temp;
+        }
+}
+
 String *str_init(void)
 {
         String *dest = malloc(sizeof(String));
@@ -58,19 +79,7 @@ void str_overwrite(String *dest, const char *source)
 
         // Realloc is string length is more than str_obj size
         if (dest->str_obj_ptr->size < input_len + 1) {
-                while (dest->str_obj_ptr->size < input_len + 1) {
-                        dest->str_obj_ptr->size *= 1.5;
-                }
-
-                char *temp = realloc(dest->str_obj_ptr->str_ptr, dest->str_obj_ptr->size * sizeof(char));
-                if (temp == NULL) {
-                        // Failure
-                        strcpy(dest->error_msg, "str_write: realloc failure");
-                        dest->error_code = ERROR_ALLOCATION;
-                        return;
-                } else {
-                        dest->str_obj_ptr->str_ptr = temp;
-                }
+                _str_resize(dest, input_len + 1);
         }
 
         // Write input into str_obj
@@ -80,24 +89,14 @@ void str_overwrite(String *dest, const char *source)
         dest->error_code = SUCCESS;
 }
 
-void str_add_char(String *dest, const char *source)
+void _append_char(String *dest, const char *source)
 {
         dest->error_code = ERROR_UNSET;
         size_t input_len = strlen(source);
 
         // Realloc total length is more than str_obj size
         if (dest->str_obj_ptr->size < dest->str_obj_ptr->len + input_len + 1) {
-                while(dest->str_obj_ptr->size < dest->str_obj_ptr->len + input_len + 1) {
-                        dest->str_obj_ptr->size *= 1.5;
-                }
-                char *temp = realloc(dest->str_obj_ptr->str_ptr, dest->str_obj_ptr->size * sizeof(char));
-                if (temp == NULL) {
-                        strcpy(dest->error_msg, "str_add: realloc failure");
-                        dest->error_code = ERROR_ALLOCATION;
-                        return;
-                } else {
-                        dest->str_obj_ptr->str_ptr = temp;
-                }
+                _str_resize(dest, dest->str_obj_ptr->len + input_len + 1);
         }
 
         strcat(dest->str_obj_ptr->str_ptr, source);
@@ -106,24 +105,14 @@ void str_add_char(String *dest, const char *source)
         dest->error_code = SUCCESS;
 }
 
-void str_add_string(String *dest, String *source)
+void _append_string(String *dest, String *source)
 {
         dest->error_code = ERROR_UNSET;
         size_t input_len = source->str_obj_ptr->len;
 
         // Realloc if total length is more than dest size
         if (dest->str_obj_ptr->size < dest->str_obj_ptr->len + input_len + 1) {
-                while (dest->str_obj_ptr->size < dest->str_obj_ptr->len + input_len + 1) {
-                        dest->str_obj_ptr->size *= 1.5;
-                }
-                char *temp = realloc(dest->str_obj_ptr->str_ptr, dest->str_obj_ptr->size * sizeof(char));
-                if (temp == NULL) {
-                        strcpy(dest->error_msg, "str_add_str: realloc failure");
-                        dest->error_code = ERROR_ALLOCATION;
-                        return;
-                } else {
-                        dest->str_obj_ptr->str_ptr = temp;
-                }
+                _str_resize(dest, dest->str_obj_ptr->len + input_len + 1);
         }
 
         strcat(dest->str_obj_ptr->str_ptr, source->str_obj_ptr->str_ptr);
