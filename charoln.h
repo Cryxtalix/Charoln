@@ -67,13 +67,25 @@ size_t str_len(String *dest);
  * @note Overwrites any existing data.
  * @param String, const C strings
  */
-void str_write(String *dest, const char *source);
+void str_overwrite(String *dest, const char *source);
 
 /*
  * Append standard C string to String
  *
  * @param String, const c strings
  */
-void str_add(String *dest, const char *source);
+void str_add_char(String *dest, const char *source);
+
+/*
+ * Append standard String to String
+ *
+ * @param String, Sting
+ */
+void str_add_string(String *dest, String *source);
+
+#define str_append(dest, source) _Generic((source), \
+                                            const char *: str_add_char, \
+                                                String *: str_add_string \
+                                          )(dest, source)
 
 #endif // CHARLN

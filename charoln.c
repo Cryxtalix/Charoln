@@ -5,6 +5,7 @@
 */
 
 #include "charoln.h"
+#include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -50,7 +51,7 @@ size_t str_len(String *dest)
         return dest->str_obj_ptr->len;
 }
 
-void str_write(String *dest, const char *source)
+void str_overwrite(String *dest, const char *source)
 {
         dest->error_code = ERROR_UNSET;
         size_t input_len = strlen(source);
@@ -79,7 +80,7 @@ void str_write(String *dest, const char *source)
         dest->error_code = SUCCESS;
 }
 
-void str_add(String *dest, const char *source)
+void str_add_char(String *dest, const char *source)
 {
         dest->error_code = ERROR_UNSET;
         size_t input_len = strlen(source);
@@ -100,6 +101,32 @@ void str_add(String *dest, const char *source)
         }
 
         strcat(dest->str_obj_ptr->str_ptr, source);
+        dest->str_obj_ptr->len += input_len;
+
+        dest->error_code = SUCCESS;
+}
+
+void str_add_string(String *dest, String *source)
+{
+        dest->error_code = ERROR_UNSET;
+        size_t input_len = source->str_obj_ptr->len;
+
+        // Realloc if total length is more than dest size
+        if (dest->str_obj_ptr->size < dest->str_obj_ptr->len + input_len + 1) {
+                while (dest->str_obj_ptr->size < dest->str_obj_ptr->len + input_len + 1) {
+                        dest->str_obj_ptr->size *= 1.5;
+                }
+                char *temp = realloc(dest->str_obj_ptr->str_ptr, dest->str_obj_ptr->size * sizeof(char));
+                if (temp == NULL) {
+                        strcpy(dest->error_msg, "str_add_str: realloc failure");
+                        dest->error_code = ERROR_ALLOCATION;
+                        return;
+                } else {
+                        dest->str_obj_ptr->str_ptr = temp;
+                }
+        }
+
+        strcat(dest->str_obj_ptr->str_ptr, source->str_obj_ptr->str_ptr);
         dest->str_obj_ptr->len += input_len;
 
         dest->error_code = SUCCESS;

@@ -17,10 +17,10 @@
 char *string_to_fill(size_t len);
 int get_random_int(int min, int max);
 void test_str_init(void);
+void test_str_overwrite(void);
 void test_str_get(void);
 void test_str_len(void);
-void test_str_write(void);
-void test_str_add(void);
+void test_str_append(void);
 
 // Create test string to completely fill size in memory
 // Free after use
@@ -57,11 +57,50 @@ void test_str_init(void)
         str_destroy(tstr);
 }
 
+void test_str_overwrite()
+{
+        String *tstr = str_init();
+        // Create 199 char long sting to test realloc mechanism
+        char *value = string_to_fill(200);
+        str_overwrite(tstr, value);
+
+        // Check size, string content, real length and stored length
+        assert(tstr->error_code == SUCCESS);
+        assert(tstr->str_obj_ptr->size >= 200);
+        assert(strcmp(tstr->str_obj_ptr->str_ptr, value) == 0); // Content
+        assert(strlen(tstr->str_obj_ptr->str_ptr) == strlen(value)); // Real length
+        assert(tstr->str_obj_ptr->len == 199); // Stored length
+        free(value);
+        
+        // Write string of exact size(including null terminator) and check if realloc is triggered
+        const size_t current_size = tstr->str_obj_ptr->size;
+        char *value2 = string_to_fill(current_size);
+        str_overwrite(tstr, value2);
+
+        // Ensure size and length is as expected
+        assert(tstr->error_code == SUCCESS);
+        assert(tstr->str_obj_ptr->size == current_size); // Size has not changed
+        assert(tstr->str_obj_ptr->len + 1 == current_size); // Length is as expected
+        free(value2);
+
+        // Test overwriting with shorter string
+        char *value3 = string_to_fill(100);
+        str_overwrite(tstr, value3);
+
+        // Ensure length is now as expected
+        assert(tstr->error_code == SUCCESS);
+        assert(tstr->str_obj_ptr->len == 99);
+        
+        printf("%s\n", "str_overwrite test passed");
+
+        str_destroy(tstr);
+}
+
 void test_str_get()
 {
         String *tstr = str_init();
         const char *value = "Hello how are you? λゅ🚒會意";
-        str_write(tstr, value);
+        str_overwrite(tstr, value);
         assert(strcmp(str_get(tstr), value) == 0);
         printf("%s\n", "str_get test passed");
 
@@ -75,7 +114,7 @@ void test_str_len()
         for (int i = 0; i < 5; i++) {
                 size_t random = get_random_int(100, 2000);
                 char *value = string_to_fill(random);
-                str_write(tstr, value);
+                str_overwrite(tstr, value);
 
                 // Ensure that str_len returns same result as random
                 assert(str_len(tstr) == random - 1);
@@ -87,77 +126,36 @@ void test_str_len()
         str_destroy(tstr);
 }
 
-void test_str_write()
+void test_str_append()
 {
+        // APPEND STRING OBJ
         String *tstr = str_init();
-        // Create 199 char long sting to test realloc mechanism
-        char *value = string_to_fill(200);
-        str_write(tstr, value);
+        String *tstr2 = str_init();
+        str_overwrite(tstr, "Hello");
+        str_overwrite(tstr2, "world");
 
-        // Check size, string content, real length and stored length
+        str_append(tstr, tstr2);
         assert(tstr->error_code == SUCCESS);
-        assert(tstr->str_obj_ptr->size >= 200);
-        assert(strcmp(tstr->str_obj_ptr->str_ptr, value) == 0); // Content
-        assert(strlen(tstr->str_obj_ptr->str_ptr) == strlen(value)); // Real length
-        assert(tstr->str_obj_ptr->len == 199); // Stored length
-        free(value);
-        
-        // Write string of exact size(including null terminator) and check if realloc is triggered
-        const size_t current_size = tstr->str_obj_ptr->size;
-        char *value2 = string_to_fill(current_size);
-        str_write(tstr, value2);
+        assert(tstr->str_obj_ptr->len == 10);
 
-        // Ensure size and length is as expected
+        // APPEND CHAR ARR
+        str_append(tstr, "Good!");
         assert(tstr->error_code == SUCCESS);
-        assert(tstr->str_obj_ptr->size == current_size); // Size has not changed
-        assert(tstr->str_obj_ptr->len + 1 == current_size); // Length is as expected
-        free(value2);
-        
-        printf("%s\n", "str_write test passed");
+        assert(str_len(tstr) == 15);
 
+        printf("%s\n", "str_append test passed");
         str_destroy(tstr);
-}
-
-void test_str_add()
-{
-        String *tstr = str_init();
-        // Create a 199 char long string with str_add
-        char *value = string_to_fill(200);
-        str_add(tstr, value);
-
-        // Check size, string content, real length and stored length
-        assert(tstr->error_code == SUCCESS);
-        assert(tstr->str_obj_ptr->size >= 200);
-        assert(strcmp(tstr->str_obj_ptr->str_ptr, value) == 0); // Content
-        assert(strlen(tstr->str_obj_ptr->str_ptr) == strlen(value)); // Real length
-        assert(tstr->str_obj_ptr->len == 199); // Stored length
-        free(value);
-
-        // Add string of exact size(including null terminator) and check if realloc is triggered
-        const size_t current_size = tstr->str_obj_ptr->size;
-        const size_t additional = current_size - tstr->str_obj_ptr->len;
-        char *value2 = string_to_fill(additional);
-        str_add(tstr, value2);
-
-        // Ensure size and length is as expected
-        assert(tstr->error_code == SUCCESS);
-        assert(tstr->str_obj_ptr->size == current_size); // Size has not changed
-        assert(tstr->str_obj_ptr->len == current_size - 1); // Length is as expected
-        free(value2);
-
-        printf("%s\n", "str_add test passed");
-
-        str_destroy(tstr);
+        str_destroy(tstr2);
 }
 
 int main(void)
 {
         // Run tests
         test_str_init();
+        test_str_overwrite();
         test_str_get();
         test_str_len();
-        test_str_write();
-        test_str_add();
+        test_str_append();
 
         return 0;
 }
