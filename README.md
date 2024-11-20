@@ -8,6 +8,7 @@ C lacks a modern string library in the standard library. Null-terminated strings
 A personal motivation is to make it easier to complete [Advent of Code](https://adventofcode.com/) challenges, reducing some of the burden as almost every challenge involves string manipulation in some way.
 
 ## Todo
+- [x] Error handling
 - [x] Initialise
 - [x] Destroy
 - [x] Get

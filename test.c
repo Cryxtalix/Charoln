@@ -51,7 +51,7 @@ void test_str_init(void)
         assert(tstr->error_msg != NULL);
         assert(tstr->str_obj_ptr != NULL);
         assert(tstr->str_obj_ptr->str_ptr != NULL);
-        assert(tstr->error_code == 0);
+        assert(tstr->error_code == SUCCESS);
         printf("%s\n", "str_init test passed");
 
         str_destroy(tstr);
