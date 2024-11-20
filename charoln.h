@@ -16,15 +16,23 @@
 #define INIT_STR_SIZE 50
 #endif //INIT_STR_SIZE
 
-typedef struct {
-        struct str_obj *str_obj_ptr;
-}String;
+typedef enum {
+        SUCCESS,
+        ERROR_UNSET,
+        ERROR_ALLOCATION
+} ErrorCode;
 
-struct str_obj {
+typedef struct {
         char *str_ptr;
         size_t len;
         size_t size;
-};
+} str_obj;
+
+typedef struct {
+        str_obj *str_obj_ptr;
+        ErrorCode error_code;
+        char *error_msg;
+} String;
 
 /*
  * Generates a new string and returns a pointer to it.

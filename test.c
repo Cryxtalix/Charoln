@@ -48,8 +48,10 @@ void test_str_init(void)
 
         // Check that the pointers are not NULL
         assert(tstr != NULL);
+        assert(tstr->error_msg != NULL);
         assert(tstr->str_obj_ptr != NULL);
         assert(tstr->str_obj_ptr->str_ptr != NULL);
+        assert(tstr->error_code == 0);
         printf("%s\n", "str_init test passed");
 
         str_destroy(tstr);
@@ -93,6 +95,7 @@ void test_str_write()
         str_write(tstr, value);
 
         // Check size, string content, real length and stored length
+        assert(tstr->error_code == SUCCESS);
         assert(tstr->str_obj_ptr->size >= 200);
         assert(strcmp(tstr->str_obj_ptr->str_ptr, value) == 0); // Content
         assert(strlen(tstr->str_obj_ptr->str_ptr) == strlen(value)); // Real length
@@ -105,6 +108,7 @@ void test_str_write()
         str_write(tstr, value2);
 
         // Ensure size and length is as expected
+        assert(tstr->error_code == SUCCESS);
         assert(tstr->str_obj_ptr->size == current_size); // Size has not changed
         assert(tstr->str_obj_ptr->len + 1 == current_size); // Length is as expected
         free(value2);
@@ -122,6 +126,7 @@ void test_str_add()
         str_add(tstr, value);
 
         // Check size, string content, real length and stored length
+        assert(tstr->error_code == SUCCESS);
         assert(tstr->str_obj_ptr->size >= 200);
         assert(strcmp(tstr->str_obj_ptr->str_ptr, value) == 0); // Content
         assert(strlen(tstr->str_obj_ptr->str_ptr) == strlen(value)); // Real length
@@ -135,6 +140,7 @@ void test_str_add()
         str_add(tstr, value2);
 
         // Ensure size and length is as expected
+        assert(tstr->error_code == SUCCESS);
         assert(tstr->str_obj_ptr->size == current_size); // Size has not changed
         assert(tstr->str_obj_ptr->len == current_size - 1); // Length is as expected
         free(value2);

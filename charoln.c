@@ -11,27 +11,23 @@
 String *str_init(void)
 {
         String *dest = malloc(sizeof(String));
-        if (dest == NULL) { // Check allocation
-                fprintf(stderr, "str_init: Memory allocation of String failed\n");
-                exit(1);
-        }
-
-        // Allocate memory for str_obj
-        dest->str_obj_ptr = malloc(sizeof(struct str_obj));
-        if (dest->str_obj_ptr == NULL) { // Check if allocation
-                fprintf(stderr, "str_init: Memory allocation of str_obj_ptr failed\n");
-                exit(1);
-        }
-
-        // Allocate memory for string
+        dest->error_msg = malloc(50 * sizeof(char));
+        dest->str_obj_ptr = malloc(sizeof(str_obj));
         dest->str_obj_ptr->str_ptr = malloc(INIT_STR_SIZE * sizeof(char));
-        if (dest->str_obj_ptr->str_ptr == NULL) { // Check if allocation
-                fprintf(stderr, "str_init: Memory allocation of str_ptr failed\n");
-                exit(1);
-        }
+
+        if (
+                dest == NULL ||
+                dest->error_msg == NULL ||
+                dest->str_obj_ptr == NULL ||
+                dest->str_obj_ptr->str_ptr == NULL
+        ) {
+                return NULL;
+        };
+
         memset(dest->str_obj_ptr->str_ptr, '\0', INIT_STR_SIZE);
         dest->str_obj_ptr->len = 0;
         dest->str_obj_ptr->size = INIT_STR_SIZE;
+        dest->error_code = SUCCESS;
 
         return dest;
 }
@@ -40,6 +36,7 @@ void str_destroy(String *dest)
 {
         free(dest->str_obj_ptr->str_ptr);
         free(dest->str_obj_ptr);
+        free(dest->error_msg);
         free(dest);
 }
 
@@ -55,6 +52,7 @@ size_t str_len(String *dest)
 
 void str_write(String *dest, const char *source)
 {
+        dest->error_code = ERROR_UNSET;
         size_t input_len = strlen(source);
 
         // Realloc is string length is more than str_obj size
@@ -64,10 +62,11 @@ void str_write(String *dest, const char *source)
                 }
 
                 char *temp = realloc(dest->str_obj_ptr->str_ptr, dest->str_obj_ptr->size * sizeof(char));
-                if (temp == NULL) { // Check allocation
-                        fprintf(stderr, "str_write: Memory reallocation of str_ptr failed\n");
-                        free(dest->str_obj_ptr->str_ptr);
-                        exit(1);
+                if (temp == NULL) {
+                        // Failure
+                        strcpy(dest->error_msg, "str_write: realloc failure");
+                        dest->error_code = ERROR_ALLOCATION;
+                        return;
                 } else {
                         dest->str_obj_ptr->str_ptr = temp;
                 }
@@ -76,10 +75,13 @@ void str_write(String *dest, const char *source)
         // Write input into str_obj
         strcpy(dest->str_obj_ptr->str_ptr, source);
         dest->str_obj_ptr->len = input_len;
+
+        dest->error_code = SUCCESS;
 }
 
 void str_add(String *dest, const char *source)
 {
+        dest->error_code = ERROR_UNSET;
         size_t input_len = strlen(source);
 
         // Realloc total length is more than str_obj size
@@ -89,9 +91,9 @@ void str_add(String *dest, const char *source)
                 }
                 char *temp = realloc(dest->str_obj_ptr->str_ptr, dest->str_obj_ptr->size * sizeof(char));
                 if (temp == NULL) {
-                        fprintf(stderr, "str_add: Memory reallocation of str_ptr failed\n");
-                        free(dest->str_obj_ptr->str_ptr);
-                        exit(1);
+                        strcpy(dest->error_msg, "str_add: realloc failure");
+                        dest->error_code = ERROR_ALLOCATION;
+                        return;
                 } else {
                         dest->str_obj_ptr->str_ptr = temp;
                 }
@@ -99,4 +101,6 @@ void str_add(String *dest, const char *source)
 
         strcat(dest->str_obj_ptr->str_ptr, source);
         dest->str_obj_ptr->len += input_len;
+
+        dest->error_code = SUCCESS;
 }
