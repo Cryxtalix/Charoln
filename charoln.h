@@ -26,10 +26,6 @@ typedef struct {
         char *str_ptr;
         size_t len;
         size_t size;
-} str_obj;
-
-typedef struct {
-        str_obj *str_obj_ptr;
         ErrorCode error_code;
         char *error_msg;
 } String;

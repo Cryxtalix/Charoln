@@ -49,8 +49,7 @@ void test_str_init(void)
         // Check that the pointers are not NULL
         assert(tstr != NULL);
         assert(tstr->error_msg != NULL);
-        assert(tstr->str_obj_ptr != NULL);
-        assert(tstr->str_obj_ptr->str_ptr != NULL);
+        assert(tstr->str_ptr != NULL);
         assert(tstr->error_code == SUCCESS);
         printf("%s\n", "str_init test passed");
 
@@ -67,21 +66,21 @@ void test_str_overwrite()
 
         // Check size, string content, real length and stored length
         assert(tstr->error_code == SUCCESS);
-        assert(tstr->str_obj_ptr->size >= 200);
-        assert(strcmp(tstr->str_obj_ptr->str_ptr, value) == 0); // Content
-        assert(strlen(tstr->str_obj_ptr->str_ptr) == strlen(value)); // Real length
-        assert(tstr->str_obj_ptr->len == 199); // Stored length
+        assert(tstr->size >= 200);
+        assert(strcmp(tstr->str_ptr, value) == 0); // Content
+        assert(strlen(tstr->str_ptr) == strlen(value)); // Real length
+        assert(tstr->len == 199); // Stored length
         free(value);
         
         // Write string of exact size(including null terminator) and check if realloc is triggered
-        const size_t current_size = tstr->str_obj_ptr->size;
+        const size_t current_size = tstr->size;
         char *value2 = string_to_fill(current_size);
         str_overwrite(tstr, value2);
 
         // Ensure size and length is as expected
         assert(tstr->error_code == SUCCESS);
-        assert(tstr->str_obj_ptr->size == current_size); // Size has not changed
-        assert(tstr->str_obj_ptr->len + 1 == current_size); // Length is as expected
+        assert(tstr->size == current_size); // Size has not changed
+        assert(tstr->len + 1 == current_size); // Length is as expected
         free(value2);
 
         /*** TESTING OVERWRITING FUNCTIONALITY ***/
@@ -90,7 +89,7 @@ void test_str_overwrite()
 
         // Ensure length is now as expected
         assert(tstr->error_code == SUCCESS);
-        assert(tstr->str_obj_ptr->len == 99);
+        assert(tstr->len == 99);
         
         printf("%s\n", "str_overwrite test passed");
 
@@ -138,7 +137,7 @@ void test_str_append()
 
         str_append(tstr, tstr2);
         assert(tstr->error_code == SUCCESS);
-        assert(tstr->str_obj_ptr->len == 10);
+        assert(tstr->len == 10);
 
         // APPEND CHAR ARR
         str_append(tstr, "Good!");
