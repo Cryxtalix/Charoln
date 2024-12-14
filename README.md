@@ -13,9 +13,10 @@ A personal motivation is to make it easier to complete [Advent of Code](https://
 - [x] Destroy
 - [x] Get
 - [x] Get length 
-- [x] Write
-- [x] Append
-- [ ] Append string
+- [x] Overwrite c strings
+- [ ] Overwrite String
+- [x] Append c strings
+- [x] Append String
 - [ ] Slice
 - [ ] Index
 - [ ] Split
