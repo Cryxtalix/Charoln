@@ -20,13 +20,13 @@ typedef enum {
         SUCCESS,
         ERROR_UNSET,
         ERROR_ALLOCATION
-} ErrorCode;
+} StatusCode;
 
 typedef struct {
         char *str_ptr;
         size_t len;
         size_t size;
-        ErrorCode error_code;
+        StatusCode status_code;
 } String;
 
 /*

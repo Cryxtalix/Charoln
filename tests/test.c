@@ -50,7 +50,7 @@ void test_str_init(void)
         // Check that the pointers are not NULL
         assert(tstr != NULL);
         assert(tstr->str_ptr != NULL);
-        assert(tstr->error_code == SUCCESS);
+        assert(tstr->status_code == SUCCESS);
         printf("%s\n", "str_init test passed");
 
         str_destroy(tstr);
@@ -59,13 +59,13 @@ void test_str_init(void)
 void test_str_resize(void)
 {
         String *tstr = str_init();
-        int t_size = get_random_int(51, 150);
-        _str_resize(tstr, t_size);
-        assert(tstr->size >= (size_t)t_size);
+        int target = get_random_int(51, 150);
+        _str_resize(tstr, target);
+        assert(tstr->size >= (size_t)target);
 
-        t_size = get_random_int(200, 400);
-        _str_resize(tstr, t_size);
-        assert(tstr->size >= (size_t)t_size);
+        target = get_random_int(200, 400);
+        _str_resize(tstr, target);
+        assert(tstr->size >= (size_t)target);
         printf("%s\n", "_str_resize test passed");
 
         str_destroy(tstr);
@@ -73,25 +73,25 @@ void test_str_resize(void)
 
 void test_str_write(void)
 {
-        /*** TESTING DIFFERENT CHAR* ARGUMENT ***/
+        /*** TESTING CHAR* ARGUMENT ***/
         String *tstr = str_init();
         // Create 199 char long sting to test realloc mechanism
         char *value = string_to_fill(200);
         str_write(tstr, value);
 
         // Check size, string content, real length and stored length
-        assert(tstr->error_code == SUCCESS);
+        assert(tstr->status_code == SUCCESS);
         assert(tstr->size >= 200);
         assert(strcmp(tstr->str_ptr, value) == 0); // Content
         assert(strlen(tstr->str_ptr) == strlen(value)); // Real length
         assert(tstr->len == 199); // Stored length
 
-        /*** TESTING DIFFERENT STRING ARGUMENT ***/
+        /*** TESTING STRING ARGUMENT ***/
         String *tstr2 = str_init();
         str_write(tstr2, tstr);
 
         // Check size, string content, real length and stored length
-        assert(tstr2->error_code == SUCCESS);
+        assert(tstr2->status_code == SUCCESS);
         assert(tstr2->size >= 200);
         assert(strcmp(tstr2->str_ptr, value) == 0); // Content
         assert(strlen(tstr2->str_ptr) == strlen(value)); // Real length
@@ -143,12 +143,12 @@ void test_str_append(void)
         str_write(tstr2, "world");
 
         str_append(tstr, tstr2);
-        assert(tstr->error_code == SUCCESS);
+        assert(tstr->status_code == SUCCESS);
         assert(tstr->len == 10);
 
         // APPEND CHAR ARR
         str_append(tstr, "Good!");
-        assert(tstr->error_code == SUCCESS);
+        assert(tstr->status_code == SUCCESS);
         assert(str_len(tstr) == 15);
 
         printf("%s\n", "str_append test passed");
