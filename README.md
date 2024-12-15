@@ -14,7 +14,7 @@ A personal motivation is to make it easier to complete [Advent of Code](https://
 - [x] Get
 - [x] Get length 
 - [x] Overwrite c strings
-- [ ] Overwrite String
+- [x] Overwrite String
 - [x] Append c strings
 - [x] Append String
 - [ ] Slice

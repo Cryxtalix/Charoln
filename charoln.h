@@ -27,7 +27,6 @@ typedef struct {
         size_t len;
         size_t size;
         ErrorCode error_code;
-        char *error_msg;
 } String;
 
 /*
@@ -60,11 +59,17 @@ size_t str_len(String *dest);
 /*
  * Write text to string
  *
- * @note Overwrites any existing data.
+ * @note Writes string, overwriting any existing data.
  * @param String
- * @param const char *
+ * @param String or const char *
  */
-void str_overwrite(String *dest, const char *source);
+#define str_write(dest, source) _Generic((source), \
+                                            const char *: _overwrite_char, \
+                                                  char *: _overwrite_char, \
+                                                String *: _overwrite_string \
+                                          )(dest, source)
+void _overwrite_char(String *dest, const char *source);
+void _overwrite_string(String *dest, String *source);
 
 /*
  * Append to String

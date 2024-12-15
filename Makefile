@@ -37,7 +37,7 @@ charoln.o: charoln.c charoln.h
 	@$(CC) $(CFLAGS) -c -o $@ $<
 
 test:
-	@$(CC) $(CFLAGS) charoln.c test.c -g -O2 -o tests.out
+	@$(CC) $(CFLAGS) charoln.c ./tests/test.c -DTESTING -g -O2 -o tests.out
 	@./tests.out
 	@ rm tests.out
 
