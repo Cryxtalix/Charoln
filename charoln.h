@@ -4,8 +4,8 @@
 * more details.
 */
 
-#ifndef CHARLN
-#define CHARLN
+#ifndef CHAROLN
+#define CHAROLN
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -84,4 +84,4 @@ void _overwrite_string(String *dest, String *source);
 void _append_char(String *dest, const char *source);
 void _append_string(String *dest, String *source);
 
-#endif // CHARLN
+#endif // CHAROLN
