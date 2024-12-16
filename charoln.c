@@ -142,3 +142,25 @@ void _append_string(String *dest, String *source)
         dest->len += input_len;
         dest->status_code = SUCCESS;
 }
+
+String *str_slice(String *source, int start, int end) {
+        if (start < 0) {start += source->len;}
+        if (end < 0) {end += source->len;}
+
+        String *slice = malloc(sizeof(String));
+        slice->str_ptr = source->str_ptr + start;
+        slice->len = end - start;
+        slice->size = 0;
+
+        // Error checking
+        if (
+                start > source->len ||
+                end > source->len ||
+                start > end
+        ) {
+                slice->status_code = ERROR_ALLOCATION;
+        } else {
+                slice->status_code = SUCCESS;
+        }
+        return slice;
+}
