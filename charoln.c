@@ -5,8 +5,6 @@
 */
 
 #include "charoln.h"
-#include <stddef.h>
-#include <stdlib.h>
 #include <string.h>
 
 #ifdef TESTING
@@ -47,7 +45,6 @@ String *str_init(void)
                 return NULL;
         };
 
-        memset(retval->str_ptr, '\0', INIT_STR_SIZE);
         retval->len = 0;
         retval->size = INIT_STR_SIZE;
         retval->status_code = SUCCESS;
@@ -57,18 +54,22 @@ String *str_init(void)
 
 void str_destroy(String *source)
 {
-        free(source->str_ptr);
+        // Do not accidentally free null pointers
+        if (source == NULL) {
+                return;
+        }
+        if (source->size != 0) {
+                free(source->str_ptr);
+        }
         free(source);
 }
 
 char *str_get(String *source)
 {
-        return source->str_ptr;
-}
-
-size_t str_len(String *source)
-{
-        return source->len;
+        char *retval = malloc((source->len + 1) * sizeof(char));
+        memcpy(retval, source->str_ptr, source->len);
+        retval[source->len] = '\0';
+        return retval;
 }
 
 void _overwrite_char(String *dest, const char *source)
@@ -77,14 +78,14 @@ void _overwrite_char(String *dest, const char *source)
         size_t input_len = strlen(source);
 
         // Realloc if string length is more than source size
-        if (dest->size < input_len + 1) {
-                _str_resize(dest, input_len + 1);
+        if (dest->size < input_len) {
+                _str_resize(dest, input_len);
                 if (dest->status_code == ERROR_ALLOCATION) {
                         return;
                 }
         }
 
-        strcpy(dest->str_ptr, source);
+        memcpy(dest->str_ptr, source, input_len * sizeof(char));
         dest->len = input_len;
         dest->status_code = SUCCESS;
 }
@@ -95,14 +96,14 @@ void _overwrite_string(String *dest, String *source)
         size_t input_len = source->len;
 
         // Realloc if string length is more than source size
-        if (dest->size < input_len + 1) {
-                _str_resize(dest, input_len + 1);
+        if (dest->size < input_len) {
+                _str_resize(dest, input_len);
                 if (dest->status_code == ERROR_ALLOCATION) {
                         return;
                 }
         }
         
-        strcpy(dest->str_ptr, source->str_ptr);
+        memcpy(dest->str_ptr, source->str_ptr, input_len * sizeof(char));
         dest->len = input_len;
         dest->status_code = SUCCESS;
 }
@@ -113,14 +114,14 @@ void _append_char(String *dest, const char *source)
         size_t input_len = strlen(source);
 
         // Realloc total length is more than str_obj size
-        if (dest->size < dest->len + input_len + 1) {
-                _str_resize(dest, dest->len + input_len + 1);
+        if (dest->size < dest->len + input_len) {
+                _str_resize(dest, dest->len + input_len);
                 if (dest->status_code == ERROR_ALLOCATION) {
                         return;
                 }
-        }
-
-        strcat(dest->str_ptr, source);
+        } 
+ 
+        memcpy(dest->str_ptr + dest->len, source, input_len * sizeof(char));
         dest->len += input_len;
         dest->status_code = SUCCESS;
 }
@@ -131,36 +132,39 @@ void _append_string(String *dest, String *source)
         size_t input_len = source->len;
 
         // Realloc if total length is more than dest size
-        if (dest->size < dest->len + input_len + 1) {
-                _str_resize(dest, dest->len + input_len + 1);
+        if (dest->size < dest->len + input_len) {
+                _str_resize(dest, dest->len + input_len);
                 if (dest->status_code == ERROR_ALLOCATION) {
                         return;
                 }
         }
 
-        strcat(dest->str_ptr, source->str_ptr);
+        memcpy(dest->str_ptr + dest->len, source->str_ptr, input_len * sizeof(char));
         dest->len += input_len;
         dest->status_code = SUCCESS;
 }
 
 String *str_slice(String *source, int start, int end) {
-        if (start < 0) {start += source->len;}
-        if (end < 0) {end += source->len;}
-
-        String *slice = malloc(sizeof(String));
-        slice->str_ptr = source->str_ptr + start;
-        slice->len = end - start;
-        slice->size = 0;
+        int start_ptr = start;
+        int end_ptr = end;
+        if (start_ptr < 0) {start_ptr += source->len;}
+        if (end_ptr < 0) {end_ptr += source->len;}
 
         // Error checking
         if (
-                start > source->len ||
-                end > source->len ||
-                start > end
+                start_ptr > (int)source->len ||
+                start_ptr < 0 ||
+                end_ptr > (int)source->len + 1 ||
+                end_ptr < 0 ||
+                start_ptr > (int)end_ptr
         ) {
-                slice->status_code = ERROR_ALLOCATION;
+                return NULL;
         } else {
+                String *slice = malloc(sizeof(String));
+                slice->str_ptr = source->str_ptr + start_ptr;
+                slice->len = end_ptr - start_ptr;
+                slice->size = 0;
                 slice->status_code = SUCCESS;
+                return slice;
         }
-        return slice;
 }

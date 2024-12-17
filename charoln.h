@@ -9,8 +9,8 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include <math.h>
+#include <string.h>
 
 #ifndef INIT_STR_SIZE
 #define INIT_STR_SIZE 50
@@ -24,42 +24,35 @@ typedef enum {
 
 typedef struct {
         char *str_ptr;
-        size_t len;
-        size_t size;
+        size_t len; // Zero if newly initialized
+        size_t size; // Zero if substring
         StatusCode status_code;
 } String;
 
 /*
- * Generates a new string and returns a pointer to it.
+ * Generates a new String and returns a pointer to it.
  */
 String *str_init(void);
 
 /*
- * Free memory of string when no longer in use.
+ * Free memory of String
  *
  * @param String
  */
 void str_destroy(String *dest);
 
 /*
- * Extracts standard C string.
+ * Returns heap allocated standard C string.
+ * Free after use
  *
  * @param String
  */
 char *str_get(String *dest);
 
 /*
- * Returns the length of string
+ * Write text to String
  *
- * @param String
- * @return size_t
- */
-size_t str_len(String *dest);
-
-/*
- * Write text to string
- *
- * @note Writes string, overwriting any existing data.
+ * @note Writes String, overwriting any existing data.
  * @param String
  * @param String or const char *
  */
@@ -83,5 +76,16 @@ void _overwrite_string(String *dest, String *source);
                                           )(dest, source)
 void _append_char(String *dest, const char *source);
 void _append_string(String *dest, String *source);
+
+/*
+ * Slices a String
+ * Returns a new String, NULL ptr if error
+ *
+ * @param String
+ * @param int start
+ * @param int end
+ * @returns String with size of 0
+ */
+String *str_slice(String *source, int start, int end);
 
 #endif // CHAROLN

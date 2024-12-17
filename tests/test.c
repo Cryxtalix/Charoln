@@ -22,6 +22,7 @@ void test_str_write(void);
 void test_str_get(void);
 void test_str_len(void);
 void test_str_append(void);
+void test_str_slice(void);
 
 // Create test string to completely fill size in memory
 // Free after use
@@ -76,15 +77,14 @@ void test_str_write(void)
         /*** TESTING CHAR* ARGUMENT ***/
         String *tstr = str_init();
         // Create 199 char long sting to test realloc mechanism
-        char *value = string_to_fill(200);
+        char *value = string_to_fill(101);
         str_write(tstr, value);
 
         // Check size, string content, real length and stored length
         assert(tstr->status_code == SUCCESS);
-        assert(tstr->size >= 200);
-        assert(strcmp(tstr->str_ptr, value) == 0); // Content
-        assert(strlen(tstr->str_ptr) == strlen(value)); // Real length
-        assert(tstr->len == 199); // Stored length
+        assert(tstr->size == 100);
+        assert(memcmp(tstr->str_ptr, value, 100) == 0); // Content
+        assert(tstr->len == 100); // Stored length
 
         /*** TESTING STRING ARGUMENT ***/
         String *tstr2 = str_init();
@@ -92,10 +92,9 @@ void test_str_write(void)
 
         // Check size, string content, real length and stored length
         assert(tstr2->status_code == SUCCESS);
-        assert(tstr2->size >= 200);
-        assert(strcmp(tstr2->str_ptr, value) == 0); // Content
-        assert(strlen(tstr2->str_ptr) == strlen(value)); // Real length
-        assert(tstr2->len == 199); // Stored length
+        assert(tstr2->size == 100);
+        assert(memcmp(tstr->str_ptr, value, 100) == 0); // Content
+        assert(tstr2->len == 100); // Stored length
 
         free(value);
         printf("%s\n", "str_write test passed");
@@ -105,43 +104,32 @@ void test_str_write(void)
 
 void test_str_get(void)
 {
-        String *tstr = str_init();
         const char *value = "Hello how are you? λゅ🚒會意";
-        str_write(tstr, value);
-        assert(strcmp(str_get(tstr), value) == 0);
-        printf("%s\n", "str_get test passed");
 
-        str_destroy(tstr);
-}
-
-void test_str_len(void)
-{
+        // Write into String
         String *tstr = str_init();
-        // Fill with strings of random length
-        for (int i = 0; i < 5; i++) {
-                size_t random = get_random_int(100, 2000);
-                char *value = string_to_fill(random);
-                str_write(tstr, value);
+        str_write(tstr, value);
 
-                // Ensure that str_len returns same result as random
-                assert(str_len(tstr) == random - 1);
-                free(value);
-        }
+        // Extract from String
+        char *tstr2 = str_get(tstr);
 
-        printf("%s\n", "str_len test passed");
+        // Compare c strings
+        assert(strcmp(tstr2, value) == 0);
 
+        printf("%s\n", "str_get test passed");
         str_destroy(tstr);
+        free(tstr2);
 }
 
 void test_str_append(void)
 {
         /*** TESTING DIFFERENT TYPE ARGUMENTS ***/
-        // APPEND STRING OBJ
         String *tstr = str_init();
         String *tstr2 = str_init();
         str_write(tstr, "Hello");
-        str_write(tstr2, "world");
+        str_write(tstr2, "World");
 
+        // APPEND STRING
         str_append(tstr, tstr2);
         assert(tstr->status_code == SUCCESS);
         assert(tstr->len == 10);
@@ -149,11 +137,50 @@ void test_str_append(void)
         // APPEND CHAR ARR
         str_append(tstr, "Good!");
         assert(tstr->status_code == SUCCESS);
-        assert(str_len(tstr) == 15);
+        assert(tstr->len == 15);
+
+        // Ensure String is similar
+        const char *cmp = "HelloWorldGood!";
+        char *cmp2 = str_get(tstr);
+        assert(strcmp(cmp, cmp2) == 0);
 
         printf("%s\n", "str_append test passed");
         str_destroy(tstr);
         str_destroy(tstr2);
+        free(cmp2);
+}
+
+void test_str_slice(void)
+{
+        String *tstr = str_init();
+        str_write(tstr, "assignment");
+
+        // Slice sign
+        String *slice = str_slice(tstr, 2, 6);
+        assert(slice != NULL);
+        char *cmp = str_get(slice);
+        assert(strcmp(cmp, "sign") == 0);
+        assert(slice->status_code == SUCCESS);
+        str_destroy(slice);
+        free(cmp);
+
+        // Slice negative
+        slice = str_slice(tstr, -4, 11);
+        assert(slice != NULL);
+        cmp = str_get(slice);
+        assert(strcmp(cmp, "ment") == 0);
+        str_destroy(slice);
+        free(cmp);
+
+        // Slice out of range
+        slice = str_slice(tstr, -11, 11);
+        assert(slice == NULL);
+        slice = str_slice(tstr, -10, 12);
+        assert(slice == NULL);
+        str_destroy(slice);
+
+        printf("%s\n", "str_slice test passed");
+        str_destroy(tstr);
 }
 
 int main(void)
@@ -163,8 +190,8 @@ int main(void)
         test_str_resize();
         test_str_write();
         test_str_get();
-        test_str_len();
         test_str_append();
+        test_str_slice();
 
         return 0;
 }
