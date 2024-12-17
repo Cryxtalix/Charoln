@@ -37,38 +37,38 @@ void _str_resize(String *dest, size_t target_size) {
 
 String *str_init(void)
 {
-        String *dest = malloc(sizeof(String));
-        dest->str_ptr = malloc(INIT_STR_SIZE * sizeof(char));
+        String *retval = malloc(sizeof(String));
+        retval->str_ptr = malloc(INIT_STR_SIZE * sizeof(char));
 
         if (
-                dest == NULL ||
-                dest->str_ptr == NULL
+                retval == NULL ||
+                retval->str_ptr == NULL
         ) {
                 return NULL;
         };
 
-        memset(dest->str_ptr, '\0', INIT_STR_SIZE);
-        dest->len = 0;
-        dest->size = INIT_STR_SIZE;
-        dest->status_code = SUCCESS;
+        memset(retval->str_ptr, '\0', INIT_STR_SIZE);
+        retval->len = 0;
+        retval->size = INIT_STR_SIZE;
+        retval->status_code = SUCCESS;
 
-        return dest;
+        return retval;
 }
 
-void str_destroy(String *dest)
+void str_destroy(String *source)
 {
-        free(dest->str_ptr);
-        free(dest);
+        free(source->str_ptr);
+        free(source);
 }
 
-char *str_get(String *dest)
+char *str_get(String *source)
 {
-        return dest->str_ptr;
+        return source->str_ptr;
 }
 
-size_t str_len(String *dest)
+size_t str_len(String *source)
 {
-        return dest->len;
+        return source->len;
 }
 
 void _overwrite_char(String *dest, const char *source)
